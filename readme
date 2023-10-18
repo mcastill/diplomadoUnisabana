@@ -1,0 +1,291 @@
+*Problema:* Resolver un inventario de productos
+
+- Patrón Creacional
+Para resolver el problema propuesto, utilizaremos el patrón creacional Factory Method. 
+Este patrón nos permite crear objetos de una clase específica sin exponer la lógica de creación al cliente.
+En nuestro caso, la clase Producto representará un producto en nuestro inventario. 
+La clase Factory será responsable de crear objetos de la clase Producto.
+
+     class Producto
+    {
+        private $nombre;
+        private $precio;
+        private $cantidad;
+    
+        public function __construct($nombre, $precio, $cantidad)
+        {
+            $this->nombre = $nombre;
+            $this->precio = $precio;
+            $this->cantidad = $cantidad;
+        }
+    
+        public function getNombre()
+        {
+            return $this->nombre;
+        }
+    
+        public function getPrecio()
+        {
+            return $this->precio;
+        }
+    
+        public function getCantidad()
+        {
+            return $this->cantidad;
+        }
+    }
+    
+    class Factory
+    {
+        public static function crearProducto($tipo)
+        {
+            switch ($tipo) {
+                case "comida":
+                    return new Comida();
+                case "bebida":
+                    return new Bebida();
+                case "electrodomestico":
+                    return new Electrodomestico();
+                default:
+                    throw new Exception("Tipo de producto no válido");
+            }
+        }
+    }
+
+Diagrama de clases de la solución para la resolución del problema propuesto
+
+    classDiagram
+    
+    class Producto {
+      nombre: string
+      precio: float
+      cantidad: int
+    }
+    
+    class Factory {
+      crearProducto(tipo: string): Producto
+    }
+    
+    class Comida extends Producto {
+      tipoComida: string
+    }
+    
+    class Bebida extends Producto {
+      tipoBebida: string
+    }
+    
+    class Electrodomestico extends Producto {
+      tipoElectrodomestico: string
+    }
+
+    Factory --> Producto
+    
+    Factory ..> Comida
+    Factory ..> Bebida
+    Factory ..> Electrodomestico
+
+    $factory = new Factory();
+    
+    $producto1 = $factory->crearProducto("comida");
+    $producto1->setNombre("Leche");
+    $producto1->setPrecio(10);
+    $producto1->setCantidad(10);
+    
+    $producto2 = $factory->crearProducto("bebida");
+    $producto2->setNombre("Coca-Cola");
+    $producto2->setPrecio(20);
+    $producto2->setCantidad(20);
+    
+    $inventario = new Inventario();
+    $inventario->agregarProducto($producto1);
+    $inventario->agregarProducto($producto2);
+    
+    foreach ($inventario->obtenerProductos() as $producto) {
+        echo $product
+    }
+
+- Patrón Estructural
+Para resolver el problema propuesto, utilizaremos el patrón estructural Decorator. Este patrón nos permite agregar nuevas responsabilidades a un objeto sin modificar su estructura.
+En nuestro caso, la clase Producto representará un producto en nuestro inventario. La clase Decorator representará un decorador que agregará nuevas responsabilidades a un producto.
+
+    interface Producto
+    {
+        public function getNombre(): string;
+        public function getPrecio(): float;
+        public function getCantidad(): int;
+    }
+    
+    class ProductoDecorado implements Producto
+    {
+        protected $producto;
+    
+        public function __construct(Producto $producto)
+        {
+            $this->producto = $producto;
+        }
+    
+        public function getNombre()
+        {
+            return $this->producto->getNombre();
+        }
+    
+        public function getPrecio()
+        {
+            return $this->producto->getPrecio();
+        }
+    
+        public function getCantidad()
+        {
+            return $this->producto->getCantidad();
+        }
+    }
+    
+    class Decorator implements Producto
+    {
+        protected $producto;
+    
+        public function __construct(Producto $producto)
+        {
+            $this->producto = $producto;
+        }
+    
+        public function getNombre()
+        {
+            return $this->producto->getNombre();
+        }
+    
+        public function getPrecio()
+        {
+            return $this->producto->getPrecio();
+        }
+    
+        public function getCantidad()
+        {
+            return $this->producto->getCantidad();
+        }
+    }
+    
+    class Promocion implements Decorator
+    {
+        public function __construct(Producto $producto)
+        {
+            parent::__construct($producto);
+        }
+    
+        public function getPrecio()
+        {
+            return $this->producto->getPrecio() * 0.9;
+        }
+    }
+
+Diagrama de clases de la solución para la resolución del problema propuesto
+
+    classDiagram
+    
+    class Producto {
+      nombre: string
+      precio: float
+      cantidad: int
+    }
+    
+    class Decorator {
+      producto: Producto
+    }
+    
+    class Promocion extends Decorator {
+    }
+    
+    Producto --> Decorator
+    Producto ..> Promocion
+
+
+    $producto = new Producto("Leche", 10, 10);
+    $promocion = new Promocion($producto);
+    
+    echo $promocion->getPrecio(); // 9
+
+
+- Patrón de comportamiento
+Para resolver el problema propuesto, utilizaremos el patrón de comportamiento Strategy. Este patrón nos permite encapsular un algoritmo en un objeto para que pueda ser intercambiado por otro algoritmo.
+En nuestro caso, la clase Producto representará un producto en nuestro inventario. La clase EstrategiaDeCalculoDePrecio representará una estrategia de cálculo de precio.
+
+    interface EstrategiaDeCalculoDePrecio
+    {
+        public function calcularPrecio(Producto $producto): float;
+    }
+    
+    class Producto
+    {
+        private $precio;
+        private $cantidad;
+        private $estrategiaDeCalculoDePrecio;
+    
+        public function __construct($precio, $cantidad, EstrategiaDeCalculoDePrecio $estrategiaDeCalculoDePrecio)
+        {
+            $this->precio = $precio;
+            $this->cantidad = $cantidad;
+            $this->estrategiaDeCalculoDePrecio = $estrategiaDeCalculoDePrecio;
+        }
+    
+        public function getPrecio()
+        {
+            return $this->estrategiaDeCalculoDePrecio->calcularPrecio($this);
+        }
+    }
+    
+    class EstrategiaDePrecioNormal implements EstrategiaDeCalculoDePrecio
+    {
+        public function calcularPrecio(Producto $producto)
+        {
+            return $producto->getPrecio();
+        }
+    }
+    
+    class EstrategiaDePrecioRebajado implements EstrategiaDeCalculoDePrecio
+    {
+        public function calcularPrecio(Producto $producto)
+        {
+            return $producto->getPrecio() * 0.9;
+        }
+    }
+
+
+
+Diagrama de clases de la solución para la resolución del problema propuesto
+
+classDiagram
+
+    class Producto {
+      precio: float
+      cantidad: int
+      estrategiaDeCalculoDePrecio: EstrategiaDeCalculoDePrecio
+    }
+    
+    interface EstrategiaDeCalculoDePrecio {
+      calcularPrecio(Producto $producto): float;
+    }
+    
+    class EstrategiaDePrecioNormal implements EstrategiaDeCalculoDePrecio {
+    }
+    
+    class EstrategiaDePrecioRebajado implements EstrategiaDeCalculoDePrecio {
+    }
+    
+    Producto --> EstrategiaDeCalculoDePrecio
+    Producto ..> EstrategiaDePrecioNormal
+    Producto ..> EstrategiaDePrecioRebajado
+    
+    
+    $producto = new Producto(10, 10, new EstrategiaDePrecioNormal());
+    
+    echo $producto->getPrecio(); // 10
+    
+    $producto = new Producto(10, 10, new EstrategiaDePrecioRebajado());
+    
+    echo $producto->getPrecio(); // 9
+
+
+
+
+
+
